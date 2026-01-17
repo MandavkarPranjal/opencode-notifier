@@ -1,7 +1,26 @@
 {
   "name": "@pranjalmandavkar/opencode-notifier",
+  "version": "0.0.1",
+  "description": "Opencode Plugin that sends system notification when permission is needed, generation is complete or error occurs in session",
+  "author": "MandavkarPranjal",
+  "license": "MIT",
   "module": "src/index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "type": "module",
+  "keywords": [
+      "opencode",
+      "opencode-plugin",
+      "notification",
+      "alerts"
+  ],
+  "scripts": {
+    "build": "bun build src/index.ts --outdir dist --target node",
+    "typecheck": "tsc --noEmit",
+    "release:patch": "npm run build && npm version patch && npm publish --access public",
+    "release:minor": "npm run build && npm version minor && npm publish --access public",
+    "release:major": "npm run build && npm version major && npm publish --access public"
+  },
   "devDependencies": {
     "@opencode-ai/plugin": "^1.1.25",
     "@types/bun": "latest",
@@ -9,7 +28,7 @@
     "@types/node-notifier": "^8.0.5"
   },
   "peerDependencies": {
-    "typescript": "^5.9.3"
+    "@opencode-ai/plugin": "^1.1.25"
   },
   "dependencies": {
     "node-notifier": "^10.0.1"
