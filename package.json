@@ -1,6 +1,6 @@
 {
   "name": "@pranjalmandavkar/opencode-notifier",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "description": "Opencode Plugin that sends system notification when permission is needed, generation is complete or error occurs in session",
   "author": "MandavkarPranjal",
   "license": "MIT",
