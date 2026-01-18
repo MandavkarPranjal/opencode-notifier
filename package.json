@@ -7,6 +7,11 @@
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+    "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mandavkarpranjal/opencode-notifier.git"
+  },
+  "homepage": "https://github.com/mandavkarpranjal/opencode-notifier#readme",
   "keywords": [
     "opencode",
     "opencode-plugin",
