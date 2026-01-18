@@ -5,10 +5,12 @@ import { homedir } from "os"
 export type EventType = "permission" | "complete" | "error" | "question"
 
 export interface EventConfig {
+    sound: boolean
     notification: boolean
 }
 
 export interface NotifierConfig {
+    sound: boolean
     notification: boolean
     timeout: number
     showProjectName: boolean
@@ -24,13 +26,21 @@ export interface NotifierConfig {
         error: string
         question: string
     }
+    sounds: {
+        permission: string | null
+        complete: string | null
+        error: string | null
+        question: string | null
+    }
 }
 
 const DEFAULT_EVENT_CONFIG: EventConfig = {
+    sound: true,
     notification: true,
 }
 
 const DEFAULT_CONFIG: NotifierConfig = {
+    sound: true,
     notification: true,
     timeout: 5,
     showProjectName: true,
@@ -46,6 +56,12 @@ const DEFAULT_CONFIG: NotifierConfig = {
         error: "Session encountered an error",
         question: "Session has a question",
     },
+    sounds: {
+        permission: null,
+        complete: null,
+        error: null,
+        question: null
+    },
 }
 
 function getConfigPath(): string {
@@ -53,7 +69,7 @@ function getConfigPath(): string {
 }
 
 function parseEventConfig(
-    userEvent: boolean | { notification?: boolean } | undefined,
+    userEvent: boolean | { sound?: boolean; notification?: boolean } | undefined,
     defaultConfig: EventConfig
 ): EventConfig {
     if (userEvent === undefined) {
@@ -62,11 +78,13 @@ function parseEventConfig(
 
     if (typeof userEvent === "boolean") {
         return {
+            sound: userEvent,
             notification: userEvent,
         }
     }
 
     return {
+        sound: userEvent.sound ?? defaultConfig.sound,
         notification: userEvent.notification ?? defaultConfig.notification,
     }
 }
@@ -82,13 +100,16 @@ export function loadConfig(): NotifierConfig {
         const fileContent = readFileSync(configPath, "utf-8")
         const userConfig = JSON.parse(fileContent)
 
+        const globalSound = userConfig.sound ?? DEFAULT_CONFIG.sound
         const globalNotification = userConfig.notification ?? DEFAULT_CONFIG.notification
 
         const defaultWithGlobal: EventConfig = {
+            sound: globalSound,
             notification: globalNotification,
         }
 
         return {
+            sound: globalSound,
             notification: globalNotification,
             timeout:
                 typeof userConfig.timeout === "number" && userConfig.timeout > 0
@@ -107,6 +128,12 @@ export function loadConfig(): NotifierConfig {
                 error: userConfig.messages?.error ?? DEFAULT_CONFIG.messages.error,
                 question: userConfig.messages?.question ?? DEFAULT_CONFIG.messages.question,
             },
+            sounds: {
+                permission: userConfig.sounds?.permission ?? DEFAULT_CONFIG.sounds.permission,
+                complete: userConfig.sounds?.complete ?? DEFAULT_CONFIG.sounds.complete,
+                error: userConfig.sounds?.error ?? DEFAULT_CONFIG.sounds.error,
+                question: userConfig.sounds?.question ?? DEFAULT_CONFIG.sounds.question,
+            },
         }
     } catch {
         return DEFAULT_CONFIG
@@ -119,4 +146,12 @@ export function isEventNotificationEnabled(config: NotifierConfig, event: EventT
 
 export function getMessage(config: NotifierConfig, event: EventType): string {
     return config.messages[event]
+}
+
+export function isEventSoundEnabled(config: NotifierConfig, event: EventType): boolean {
+    return config.events[event].sound
+}
+
+export function getSound(config: NotifierConfig, event: EventType): string | null {
+    return config.sounds[event]
 }

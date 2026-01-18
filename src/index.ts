@@ -1,8 +1,9 @@
 import type { Plugin } from "@opencode-ai/plugin"
 import { basename } from "path"
-import { loadConfig, isEventNotificationEnabled, getMessage } from "./config"
+import { loadConfig, isEventNotificationEnabled, getMessage, isEventSoundEnabled, getSound } from "./config"
 import type { EventType, NotifierConfig } from "./config"
 import { sendNotification } from "./notify"
+import { playSound } from "./sound"
 
 function getNotificationTitle(config: NotifierConfig, projectName: string | null): string {
     if (config.showProjectName && projectName) {
@@ -22,6 +23,11 @@ async function handleEvent(
         const title = getNotificationTitle(config, projectName)
         const message = getMessage(config, eventType)
         promises.push(sendNotification(title, message, config.timeout))
+    }
+
+    if (isEventSoundEnabled(config, eventType)) {
+        const customSound = getSound(config, eventType)
+        promises.push(playSound(eventType, customSound))
     }
 
     await Promise.allSettled(promises)
