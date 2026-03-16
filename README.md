@@ -26,7 +26,7 @@ Clear the cache and restart OpenCode.
 **Linux/macOS:**
 
 ```bash
-rm -rf ~/.cache/opencode/node_modules/@mohak34/opencode-notifier
+rm -rf ~/.cache/opencode/node_modules/@pranjalmandavkar/opencode-notifier
 ```
 
 
