@@ -1,4 +1,4 @@
-import type { Plugin } from "@opencode-ai/plugin"
+import { Plugin } from "@opencode/plugin"
 import { basename } from "path"
 import { loadConfig, isEventNotificationEnabled, getMessage, isEventSoundEnabled, getSound } from "./config"
 import type { EventType, NotifierConfig } from "./config"
@@ -33,37 +33,40 @@ async function handleEvent(
     await Promise.allSettled(promises)
 }
 
-export const NotifierPlugin: Plugin = async ({ project, client, $, directory, worktree }) => {
-    const config = loadConfig()
-    const projectName = directory ? basename(directory) : null
+export const NotifierPlugin = Plugin.define({
+    id: "opencode-notifier",
+    async setup(ctx) {
+        const config = loadConfig()
+        const directory = ctx.location.directory
+        const projectName = directory ? basename(directory) : null
 
-    return {
-        event: async ({ event }) => {
-            if (event.type === "permission.updated") {
-                await handleEvent(config, "permission", projectName)
-            }
+        const notify = (eventType: EventType) => handleEvent(config, eventType, projectName)
 
-            if ((event as any).type === "permission.asked") {
-                await handleEvent(config, "permission", projectName)
+        const controller = new AbortController()
+        void (async () => {
+            for await (const event of ctx.event.subscribe({ signal: controller.signal })) {
+                switch (event.type) {
+                    case "permission.asked":
+                        await notify("permission")
+                        break
+                    case "session.idle":
+                        await notify("complete")
+                        break
+                    case "session.execution.failed":
+                        await notify("error")
+                        break
+                }
             }
+        })()
 
-            if (event.type === "session.idle") {
-                await handleEvent(config, "complete", projectName)
-            }
-
-            if (event.type === "session.error") {
-                await handleEvent(config, "error", projectName)
-            }
-        },
-        "permission.ask": async () => {
-            await handleEvent(config, "permission", projectName)
-        },
-        "tool.execute.before": async (input, output) => {
+        void ctx.tool.hook("execute.before", async (input) => {
             if (input.tool === "question") {
-                await handleEvent(config, "question", projectName)
+                await notify("question")
             }
-        },
-    }
-}
+        })
+
+        return () => controller.abort()
+    },
+})
 
 export default NotifierPlugin

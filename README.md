@@ -2,11 +2,14 @@
 
 OpenCode plugin that plays sounds and sends system notifications when session needs permission, is complete, encounters an error or question tool is invoked. Works on Linux, Windows and macOS(probably).
 
+> **Requires OpenCode v2.** This version uses the v2 plugin API (`@opencode/plugin`). On OpenCode v1, use `opencode-notifier@1`.
+
 ## Installation
 
 Add the plugin to your `opencode.json` or `opencode.jsonc`:
 ```json
 {
+    "$schema": "https://opencode.ai/config.json",
     "plugins": [ "@pranjalmandavkar/opencode-notifier@latest" ]
 }
 ```
@@ -33,7 +36,7 @@ rm -rf ~/.cache/opencode/node_modules/@pranjalmandavkar/opencode-notifier
 **Windows (PowerShell):**
 
 ```powershell
-Remove-Item -Recurse -Force "$env:USERPROFILE\.cache\opencode\node_modules\@mohak34\opencode-notifier"
+Remove-Item -Recurse -Force "$env:USERPROFILE\.cache\opencode\node_modules\@pranjalmandavkar\opencode-notifier"
 ```
 
 Then restart OpenCode - it will download the latest version automatically.
